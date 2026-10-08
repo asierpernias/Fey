@@ -1,0 +1,83 @@
+[gd_scene format=3 uid="uid://b40s4o61phfw7"]
+
+[ext_resource type="Script" uid="uid://bkujtwqwugdy7" path="res://main.gd" id="1_dg77c"]
+[ext_resource type="Texture2D" uid="uid://b5sw74ushm3a7" path="res://Assets/Idle/pixil-frame-0.png" id="1_efxa6"]
+[ext_resource type="Texture2D" uid="uid://cju3j5chb81u4" path="res://Assets/Idle/pixil-frame-1.png" id="2_dg77c"]
+[ext_resource type="Texture2D" uid="uid://cwsmmsm24qukl" path="res://Assets/Idle/pixil-frame-2.png" id="3_ycdy4"]
+[ext_resource type="Texture2D" uid="uid://o1hevivr5ui2" path="res://Assets/Idle/pixil-frame-3.png" id="4_w48qg"]
+[ext_resource type="Texture2D" uid="uid://bbx1r6j5bfh5k" path="res://Assets/Idle/pixil-frame-4.png" id="5_vivmo"]
+[ext_resource type="Texture2D" uid="uid://dqeih5jvw1eui" path="res://Assets/Idle/pixil-frame-5.png" id="6_2cqfq"]
+[ext_resource type="Texture2D" uid="uid://bb7chpjmwobij" path="res://Assets/Idle/pixil-frame-6.png" id="7_yaehf"]
+[ext_resource type="Texture2D" uid="uid://bn7llsaqc6u7y" path="res://Assets/Walk/pixil-frame-0.png" id="8_074og"]
+[ext_resource type="Texture2D" uid="uid://cpwueniwhe5fk" path="res://Assets/Walk/pixil-frame-1.png" id="9_cegan"]
+[ext_resource type="Texture2D" uid="uid://8t4axswhco0v" path="res://Assets/Walk/pixil-frame-2.png" id="10_82xsv"]
+[ext_resource type="Texture2D" uid="uid://bjbcqkeds3bnd" path="res://Assets/Walk/pixil-frame-3.png" id="11_getpj"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_gueev"]
+animations = [{
+"frames": [{
+"duration": 1.3,
+"texture": ExtResource("1_efxa6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_dg77c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_ycdy4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_w48qg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_vivmo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_2cqfq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_yaehf")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("8_074og")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_cegan")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_82xsv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_getpj")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yco1y"]
+size = Vector2(70.549995, 25.299988)
+
+[node name="Node2D" type="Node2D" unique_id=1791615681]
+scale = Vector2(10, 10)
+script = ExtResource("1_dg77c")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2047271538]
+position = Vector2(4.9, 95.1)
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_gueev")
+animation = &"walk"
+frame_progress = 0.89255244
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1744531945]
+position = Vector2(26.999998, 29.300001)
+scale = Vector2(0.5, 0.5)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1610022032]
+position = Vector2(-44.837494, 139.2)
+scale = Vector2(0.49999997, 0.49999997)
+shape = SubResource("RectangleShape2D_yco1y")
