@@ -60,24 +60,24 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yco1y"]
-size = Vector2(70.549995, 25.299988)
+size = Vector2(22.300003, 14.325003)
 
 [node name="Node2D" type="Node2D" unique_id=1791615681]
-scale = Vector2(10, 10)
+scale = Vector2(2, 2)
 script = ExtResource("1_dg77c")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2047271538]
-position = Vector2(4.9, 95.1)
-scale = Vector2(0.5, 0.5)
+position = Vector2(-0.5, 38)
+scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_gueev")
 animation = &"walk"
-frame_progress = 0.89255244
+frame_progress = 0.1341079
 
 [node name="Area2D" type="Area2D" parent="." unique_id=1744531945]
-position = Vector2(26.999998, 29.300001)
-scale = Vector2(0.5, 0.5)
+position = Vector2(19.599998, 4.999994)
+scale = Vector2(2, 2)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1610022032]
-position = Vector2(-44.837494, 139.2)
-scale = Vector2(0.49999997, 0.49999997)
+position = Vector2(-8.549999, 17.750004)
+scale = Vector2(2, 2)
 shape = SubResource("RectangleShape2D_yco1y")
