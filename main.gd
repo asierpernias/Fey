@@ -28,6 +28,9 @@ var fall_speed = 0.0
 var gravity = 1500.0
 var floor_y = 0.0
 
+var is_chasing = false
+var chase_cooldown = randf_range(10.0, 25.0)
+
 @onready var meow = $AudioStreamPlayer2D
 var press_pos = Vector2()
 
@@ -42,6 +45,7 @@ func _on_area_input(_viewport, event, _shape_idx):
 			return
 		is_dragged = true
 		is_idling = false
+		is_chasing = false
 		speed = 100
 		sprite.stop()
 		drag_offset = get_global_mouse_position() - position
@@ -110,10 +114,17 @@ func _physics_process(delta: float) -> void:
 	if inactivity >= sleep_timer:
 		is_sleeping = true
 		is_idling = false
+		is_chasing = false
 		speed = 0
 		sprite.play("sleep")
 		fade_sprite(Color(0.75, 0.75, 1.0, 0.7))
 		return
+	if not is_chasing and fish == null and not is_idling:
+		chase_cooldown -= delta
+		if chase_cooldown <= 0:
+			is_chasing = true
+			speed = 120
+			sprite.play("walk")
 	if is_idling:
 		idle_timer -= delta
 		if idle_timer <= 0:
@@ -130,6 +141,13 @@ func _physics_process(delta: float) -> void:
 		else:
 			direction.x = sign(dx)
 			sprite.flip_h = direction.x < 0
+	elif is_chasing:
+		var dx = get_global_mouse_position().x - position.x
+		if abs(dx) < 60:
+			stop_chasing()
+		else:
+			direction.x = sign(dx)
+			sprite.flip_h = direction.x < 0
 	position += direction * speed * delta
 	var h = window_size / 2
 	position.x = clamp(position.x, h.x, screen_size.x - h.x)
@@ -137,7 +155,11 @@ func _physics_process(delta: float) -> void:
 	if position.x <= h.x or position.x >= screen_size.x - h.x:
 		direction.x *= -1
 		sprite.flip_h = direction.x < 0
-		idling()
+		if is_chasing:
+			stop_chasing()
+		else:
+			speed = randf_range(70, 140)
+			idling()
 
 func _process(delta: float) -> void:
 	sprite.rotation = lerp(sprite.rotation, 0.0, 10 * delta)
@@ -207,7 +229,9 @@ func spawn_fish():
 	fish_fall = 0.0
 	fish = make_fx_window(fish_texture, 1.0, p)
 	is_sleeping = false
+	fade_sprite(Color.WHITE, 0.4)
 	is_idling = false
+	is_chasing = false
 	inactivity = 0.0
 	speed = 100
 	sprite.play("walk")
@@ -219,3 +243,10 @@ func play_meow():
 	meow.pitch_scale = randf_range(0.9, 1.6)
 	meow.volume_db = randf_range(-4.0, 0.0)
 	meow.play()
+	
+func stop_chasing():
+	is_chasing = false
+	chase_cooldown = randf_range(10.0, 25.0)
+	speed = 0
+	is_idling = true
+	sprite.play("idle")
