@@ -20,20 +20,23 @@ var idle_timer =0.0
 var is_idling = false
 var is_dragged = false
 var drag_offset = Vector2()
-var sleep_timer = 150.0
+var sleep_timer = 50.0
 var is_sleeping = false
 var inactivity = 0.0
 
 var fall_speed = 0.0
 var gravity = 1500.0
-var floor_y = -20.0
+var floor_y = 0.0
 
+@onready var meow = $AudioStreamPlayer2D
+var press_pos = Vector2()
 
 func _on_area_input(_viewport, event, _shape_idx):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		inactivity = 0.0
 		if is_sleeping:
 			is_sleeping = false
+			fade_sprite(Color.WHITE, 0.4)
 			speed = 100.0
 			sprite.play("walk")
 			return
@@ -42,6 +45,7 @@ func _on_area_input(_viewport, event, _shape_idx):
 		speed = 100
 		sprite.stop()
 		drag_offset = get_global_mouse_position() - position
+		press_pos = get_global_mouse_position()
 
 func _input(event):
 	if event is InputEventKey and not event.echo and event.pressed  and event.keycode == KEY_F:
@@ -53,6 +57,8 @@ func _input(event):
 		is_dragged = false
 		inactivity = 0.0
 		sprite.play("fall")
+		if get_global_mouse_position().distance_to(press_pos) < 15:
+			play_meow()
 	elif event is InputEventMouseMotion:
 		position = get_global_mouse_position() - drag_offset
 		var h = window_size / 2
@@ -106,6 +112,7 @@ func _physics_process(delta: float) -> void:
 		is_idling = false
 		speed = 0
 		sprite.play("sleep")
+		fade_sprite(Color(0.75, 0.75, 1.0, 0.7))
 		return
 	if is_idling:
 		idle_timer -= delta
@@ -204,3 +211,11 @@ func spawn_fish():
 	inactivity = 0.0
 	speed = 100
 	sprite.play("walk")
+
+func fade_sprite(to: Color, time:= 1.0):
+	create_tween().tween_property(sprite, "modulate", to, time)
+
+func play_meow():
+	meow.pitch_scale = randf_range(0.9, 1.6)
+	meow.volume_db = randf_range(-4.0, 0.0)
+	meow.play()
