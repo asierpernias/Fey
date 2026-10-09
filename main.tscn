@@ -16,6 +16,22 @@
 [ext_resource type="Texture2D" uid="uid://cpwueniwhe5fk" path="res://Assets/Walk/pixil-frame-1.png" id="9_cegan"]
 [ext_resource type="Texture2D" uid="uid://8t4axswhco0v" path="res://Assets/Walk/pixil-frame-2.png" id="10_82xsv"]
 [ext_resource type="Texture2D" uid="uid://bjbcqkeds3bnd" path="res://Assets/Walk/pixil-frame-3.png" id="11_getpj"]
+[ext_resource type="Texture2D" uid="uid://c461oxxqwf63n" path="res://Assets/sleeping/pixil-frame-0.png" id="13_htxhm"]
+[ext_resource type="Texture2D" uid="uid://dnwso8xpww7o3" path="res://Assets/sleeping/pixil-frame-1.png" id="14_jq2sk"]
+[ext_resource type="Texture2D" uid="uid://c3u6vh15tqn6s" path="res://Assets/sleeping/pixil-frame-2.png" id="15_4k2k6"]
+[ext_resource type="Texture2D" uid="uid://jvlobsduft4p" path="res://Assets/sleeping/pixil-frame-3.png" id="16_0rl1p"]
+[ext_resource type="Texture2D" uid="uid://b2x8uuica8ri8" path="res://Assets/sleeping/pixil-frame-4.png" id="17_ok6jj"]
+[ext_resource type="Texture2D" uid="uid://civ3xn6pwqq1s" path="res://Assets/sleeping/pixil-frame-5.png" id="18_facbu"]
+[ext_resource type="Texture2D" uid="uid://ccsaj81mrjhns" path="res://Assets/sleeping/pixil-frame-6.png" id="19_b1qrp"]
+[ext_resource type="Texture2D" uid="uid://g2qbrwk1a7q5" path="res://Assets/sleeping/pixil-frame-7.png" id="20_come4"]
+[ext_resource type="Texture2D" uid="uid://bwycsu2nuuivy" path="res://Assets/sleeping/pixil-frame-8.png" id="21_h8e4i"]
+[ext_resource type="Texture2D" uid="uid://r2joiowoxnmt" path="res://Assets/sleeping/pixil-frame-9.png" id="22_4lmeg"]
+[ext_resource type="Texture2D" uid="uid://chio6vnt24i4d" path="res://Assets/sleeping/pixil-frame-10.png" id="23_0cp0l"]
+[ext_resource type="Texture2D" uid="uid://ciyy8666je5pi" path="res://Assets/sleeping/pixil-frame-11.png" id="24_d2t1y"]
+[ext_resource type="Texture2D" uid="uid://6gkilha53dm1" path="res://Assets/sleeping/pixil-frame-12.png" id="25_gngh3"]
+[ext_resource type="Texture2D" uid="uid://6lmen67ngbal" path="res://Assets/sleeping/pixil-frame-13.png" id="26_0n3wm"]
+[ext_resource type="Texture2D" uid="uid://8kla7qapwxrq" path="res://Assets/sleeping/pixil-frame-14.png" id="27_qnost"]
+[ext_resource type="Texture2D" uid="uid://btsd12gaqe8d3" path="res://Assets/sleeping/pixil-frame-15.png" id="28_wnkbs"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_gueev"]
 animations = [{
@@ -64,6 +80,59 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": ExtResource("13_htxhm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_jq2sk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_4k2k6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_0rl1p")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_ok6jj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_facbu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_b1qrp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_come4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_h8e4i")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_4lmeg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_0cp0l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_d2t1y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_gngh3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_0n3wm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_qnost")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_wnkbs")
+}],
+"loop": 1,
+"name": &"sleep",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": ExtResource("8_074og")
 }, {
 "duration": 1.0,
@@ -92,8 +161,7 @@ script = ExtResource("1_dg77c")
 position = Vector2(0.5, 0.5)
 scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_gueev")
-animation = &"fall"
-frame_progress = 0.0049131904
+animation = &"sleep"
 
 [node name="Area2D" type="Area2D" parent="." unique_id=1744531945]
 position = Vector2(31.599998, -35.000008)
