@@ -2,9 +2,13 @@
 
 [ext_resource type="Script" uid="uid://bkujtwqwugdy7" path="res://main.gd" id="1_dg77c"]
 [ext_resource type="Texture2D" uid="uid://b5sw74ushm3a7" path="res://Assets/Idle/pixil-frame-0.png" id="1_efxa6"]
+[ext_resource type="Texture2D" uid="uid://bw1751f1lyrxn" path="res://Assets/Falling/pixil-frame-0.png" id="2_2cqfq"]
 [ext_resource type="Texture2D" uid="uid://cju3j5chb81u4" path="res://Assets/Idle/pixil-frame-1.png" id="2_dg77c"]
+[ext_resource type="Texture2D" uid="uid://1biv1p85gkpj" path="res://Assets/Falling/pixil-frame-1.png" id="3_yaehf"]
 [ext_resource type="Texture2D" uid="uid://cwsmmsm24qukl" path="res://Assets/Idle/pixil-frame-2.png" id="3_ycdy4"]
+[ext_resource type="Texture2D" uid="uid://bsix2qmevofgn" path="res://Assets/Falling/pixil-frame-2.png" id="4_074og"]
 [ext_resource type="Texture2D" uid="uid://o1hevivr5ui2" path="res://Assets/Idle/pixil-frame-3.png" id="4_w48qg"]
+[ext_resource type="Texture2D" uid="uid://bst3t83hssjce" path="res://Assets/Falling/pixil-frame-3.png" id="5_cegan"]
 [ext_resource type="Texture2D" uid="uid://bbx1r6j5bfh5k" path="res://Assets/Idle/pixil-frame-4.png" id="5_vivmo"]
 [ext_resource type="Texture2D" uid="uid://dqeih5jvw1eui" path="res://Assets/Idle/pixil-frame-5.png" id="6_2cqfq"]
 [ext_resource type="Texture2D" uid="uid://bb7chpjmwobij" path="res://Assets/Idle/pixil-frame-6.png" id="7_yaehf"]
@@ -15,6 +19,23 @@
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_gueev"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_2cqfq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_yaehf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_074og")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_cegan")
+}],
+"loop": 1,
+"name": &"fall",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.3,
 "texture": ExtResource("1_efxa6")
@@ -71,8 +92,8 @@ script = ExtResource("1_dg77c")
 position = Vector2(0.5, 0.5)
 scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_gueev")
-animation = &"walk"
-frame_progress = 0.07751059
+animation = &"fall"
+frame_progress = 0.0049131904
 
 [node name="Area2D" type="Area2D" parent="." unique_id=1744531945]
 position = Vector2(31.599998, -35.000008)

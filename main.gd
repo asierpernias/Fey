@@ -20,6 +20,7 @@ var floor_y = -20.0
 func _on_area_input(_viewport, event, _shape_idx):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		is_dragged = true
+		sprite.stop()
 		drag_offset = get_global_mouse_position() - position
 
 func _input(event):
@@ -32,7 +33,8 @@ func _input(event):
 		var h = window_size / 2
 		position.x = clamp(position.x, h.x, screen_size.x - h.x)
 		position.y = clamp(position.y, h.y, screen_size.y - h.y)
-	
+		sprite.rotation = clamp(event.relative.x * 0.05, -0.5, 0.5)
+		
 func _ready() -> void:
 	var win = get_window()
 	win.borderless = true
@@ -56,10 +58,14 @@ func _physics_process(delta: float) -> void:
 	if is_dragged: 
 		return
 	if position.y < floor_y:
+		if sprite.animation != "fall":
+			sprite.play("fall")
 		fall_speed += gravity * delta
 		position.y = min(position.y + fall_speed * delta, floor_y)
 		is_falling = true
 		return
+	if sprite.animation == "fall":
+		sprite.play("walk")
 	fall_speed = 0.0
 	if is_idling:
 		idle_timer -= delta
@@ -80,6 +86,7 @@ func _physics_process(delta: float) -> void:
 		idling()
 
 func _process(delta: float) -> void:
+	sprite.rotation = lerp(sprite.rotation, 0.0, 10 * delta)
 	if screen_size == Vector2.ZERO:
 		return
 	var poly: PackedVector2Array
