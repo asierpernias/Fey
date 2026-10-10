@@ -1,8 +1,9 @@
 extends Node2D
 
-var save_timer = 0
+var save_timer = 0.0
 var save_path = "user://pet.cfg"
 
+var fade_tween: Tween
 @onready var cartel = $Cartel
 var hovering = false
 var tag_tween: Tween
@@ -31,7 +32,7 @@ var fish_fall = 0.0
 
 var idle_timer =0.0
 var drag_offset = Vector2()
-var sleep_timer = 50.0
+var sleep_timer = 150.0
 var inactivity = 0.0
 
 var fall_speed = 0.0
@@ -142,7 +143,7 @@ func _physics_process(delta: float) -> void:
 				change_state(State.WALK)
 				return
 			var dx = fish_pos.x - position.x
-			if abs(dx) < 40 and fish_pos.y >= floor_y:
+			if abs(dx) < 40 and fish_pos.y >= floor_y + window_size.y / 2 -21:
 				spawn_hearts(fish_pos)
 				fish.queue_free()
 				fish = null
@@ -168,7 +169,7 @@ func _process(delta: float) -> void:
 		if state != State.DRAGGED:
 			save_data()
 	light_timer += delta
-	if light_timer == 60.0:
+	if light_timer >= 60.0:
 		light_timer = 0.0
 		update_light()
 	var poly: PackedVector2Array
@@ -233,6 +234,8 @@ func spawn_fish():
 		change_state(State.FISH)
 
 func fade_sprite(to: Color, time:= 1.0):
+	if fade_tween:
+		fade_tween.kill()
 	create_tween().tween_property(sprite, "modulate", to, time)
 
 func play_meow():
@@ -304,7 +307,7 @@ func _notification(what):
 
 func update_light():
 	var t = Time.get_time_dict_from_system()
-	var hour = t.hour + t.minute / 60
+	var hour = t.hour + t.minute / 60.0
 	var c: Color
 	var e: float
 	

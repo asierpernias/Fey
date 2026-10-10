@@ -200,6 +200,6 @@ color = Color(0.45185274, 0.45291138, 0.6027146, 1)
 
 [node name="Cartel" type="Sprite2D" parent="." unique_id=150601019]
 modulate = Color(1, 1, 1, 0)
-position = Vector2(-0.5, -28.5)
+position = Vector2(0, -35.5)
 scale = Vector2(1.59375, 1.59375)
 texture = ExtResource("36_ok6jj")
