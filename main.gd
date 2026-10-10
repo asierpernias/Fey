@@ -3,13 +3,17 @@ extends Node2D
 var save_timer = 0
 var save_path = "user://pet.cfg"
 
+@onready var cartel = $Cartel
+var hovering = false
+var tag_tween: Tween
+
 var light_timer = 0.0
 @onready var light = $AnimatedSprite2D/PointLight2D
 
 var speed = 100
 var direction = Vector2(1, 0)
 var screen_size = Vector2()
-var window_size = Vector2(140, 140)
+var window_size = Vector2(140, 250)
 
 
 enum State {WALK, IDLE, SLEEP, CHASE, FISH, DRAGGED, FALL}
@@ -72,7 +76,7 @@ func _input(event):
 		
 func _ready() -> void:
 	get_viewport().gui_embed_subwindows = false
-	floor_y = DisplayServer.screen_get_usable_rect().end.y - window_size.y / 2 + 10
+	floor_y = DisplayServer.screen_get_usable_rect().end.y - window_size.y / 2 + 65
 	var win = get_window()
 	area.input_event.connect(_on_area_input)
 	win.borderless = true
@@ -90,6 +94,8 @@ func _ready() -> void:
 	change_state(State.SLEEP)
 	await get_tree().process_frame
 	win.always_on_top = true
+	area.mouse_entered.connect(_on_hover.bind(true))
+	area.mouse_exited.connect(_on_hover.bind(false))
 	
 	
 func _physics_process(delta: float) -> void:
@@ -264,6 +270,7 @@ func change_state(new_state):
 			speed = 100
 		State.DRAGGED:
 			sprite.stop()
+			cartel.modulate.a = 0.0
 		State.FALL:
 			fall_speed = 0.0
 			sprite.play("fall")
@@ -314,3 +321,13 @@ func update_light():
 	var tw = create_tween().set_parallel(true)
 	tw.tween_property(light, "color", c, 2.0)
 	tw.tween_property(light, "energy", e, 2.0)
+
+func _on_hover(entered: bool):
+	hovering = entered
+	if state == State.DRAGGED:
+		return
+	if tag_tween:
+		tag_tween.kill()
+	tag_tween = create_tween()
+	tag_tween.tween_property(cartel, "modulate:a", 1.0 if entered else 0.0, 0.2)
+	

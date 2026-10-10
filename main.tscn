@@ -35,6 +35,7 @@
 [ext_resource type="Texture2D" uid="uid://8kla7qapwxrq" path="res://Assets/sleeping/pixil-frame-14.png" id="27_qnost"]
 [ext_resource type="Texture2D" uid="uid://btsd12gaqe8d3" path="res://Assets/sleeping/pixil-frame-15.png" id="28_wnkbs"]
 [ext_resource type="AudioStream" uid="uid://dcf7ojjtqu7t0" path="res://SFX/sound_garage-cat-meow-8-fx-306184.mp3" id="35_0rl1p"]
+[ext_resource type="Texture2D" uid="uid://ygi3er74boxg" path="res://Assets/Others/pixil-frame-0 (19).png" id="36_ok6jj"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_gueev"]
 animations = [{
@@ -196,3 +197,9 @@ stream = ExtResource("35_0rl1p")
 
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=430258462]
 color = Color(0.45185274, 0.45291138, 0.6027146, 1)
+
+[node name="Cartel" type="Sprite2D" parent="." unique_id=150601019]
+modulate = Color(1, 1, 1, 0)
+position = Vector2(-0.5, -28.5)
+scale = Vector2(1.59375, 1.59375)
+texture = ExtResource("36_ok6jj")
