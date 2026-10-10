@@ -1,3 +1,6 @@
+## Fey: a desktop pet
+## The window is transparent and its as big as the screen, the cat is just a node that moves inside.
+## Only the cat rect recieves the mouse clicks (mouse_passthroug_polygon)
 extends Node2D
 
 # Save 
@@ -9,12 +12,14 @@ var fade_tween: Tween
 var tag_tween: Tween
 var squas_tween: Tween
 
+# Light
 var light_timer = 0.0
 @onready var light = $AnimatedSprite2D/PointLight2D
 
 # Window
 var screen_size = Vector2()
-var window_size = Vector2(140, 250)
+var window_size = Vector2(140, 250) # Clickable cat zone
+@export var floor_offset := 65.0
 
 # Cat
 enum State {WALK, IDLE, SLEEP, CHASE, FISH, DRAGGED, FALL}
@@ -27,7 +32,7 @@ var state = State.WALK
 # Physics
 var fall_speed = 0.0
 var gravity = 1500.0
-var floor_y = 0.0
+var floor_y = 0.0 # Y of the center of the cat when it is on the task bar
 var speed = 100
 var direction = Vector2(1, 0)
 
@@ -43,12 +48,13 @@ var press_pos = Vector2()
 # Hearts / Fish
 var fish: Window = null
 var fish_pos = Vector2()
-var fish_fall = 0.0
+var fish_fall = 0.0 # Fall fish speed
+@export var fish_offset := 80.0
 @export var fish_texture: Texture2D
-
 @export var heart_texture: Texture2D
 var hearts_cooldown = 0.0
 
+# Menu
 var menu: PopupMenu
 @export var menu_font: Font
 
@@ -91,31 +97,31 @@ func _input(event):
 		
 func _ready() -> void:
 	setup_menu()
-	get_viewport().gui_embed_subwindows = false
-	floor_y = DisplayServer.screen_get_usable_rect().end.y - window_size.y / 2 + 65
+	get_viewport().gui_embed_subwindows = false # Evits the cut with multiple subwindows
+	floor_y = DisplayServer.screen_get_usable_rect().end.y - window_size.y / 2 + floor_offset
 	var win = get_window()
 	win.borderless = true
 	win.transparent = true
 	get_viewport().transparent_bg = true
 	win.position = Vector2i.ZERO
 	var s = DisplayServer.screen_get_size()
-	win.size = Vector2i(s.x, s.y - 1)
+	win.size = Vector2i(s.x, s.y - 1) # To dont enter in exclusive fullscreen (would break the transparency)
 	await get_tree().process_frame  
 	screen_size = get_viewport_rect().size  
 	load_data()
 	update_light()
 	position.y = floor_y
 	change_state(State.SLEEP)
-	await get_tree().process_frame
+	await get_tree().process_frame # Always on top only applies correctly if the window has already been created
 	win.always_on_top = true
 	area.mouse_entered.connect(_on_hover.bind(true))
 	area.mouse_exited.connect(_on_hover.bind(false))
 	area.input_event.connect(_on_area_input)
-	
+
 func _physics_process(delta: float) -> void:
 	if screen_size == Vector2.ZERO:
 		return
-	var fish_floor = floor_y + window_size.y / 2 -80
+	var fish_floor = get_fish_floor()
 	if fish != null and fish_pos.y < fish_floor:
 		fish_fall += gravity * delta
 		fish_pos.y = min(fish_pos.y + fish_fall * delta, fish_floor)
@@ -123,6 +129,7 @@ func _physics_process(delta: float) -> void:
 	
 	match state:
 		State.WALK, State.CHASE, State.IDLE:
+			# Active state: share the inactivity counter and comprove the fish
 			inactivity += delta
 			if inactivity >= sleep_timer:
 				change_state(State.SLEEP)
@@ -151,13 +158,14 @@ func _physics_process(delta: float) -> void:
 				if move_x(delta):
 					face(-direction.x)
 					change_state(State.IDLE if randf() < 0.5 else State.WALK)
-				
+					
 		State.FISH:
+			# Walks to the fish and eats it when the position matches
 			if fish == null:
 				change_state(State.WALK)
 				return
 			var dx = fish_pos.x - position.x
-			if abs(dx) < 40 and fish_pos.y >= floor_y -1:
+			if abs(dx) < 40 and fish_pos.y >= get_fish_floor() -1:
 				spawn_hearts(fish_pos)
 				fish.queue_free()
 				fish = null
@@ -168,6 +176,7 @@ func _physics_process(delta: float) -> void:
 			move_x(delta)
 
 		State.FALL:
+			# Gravity until the floor, with an effect at the moment of touching the floor
 			fall_speed += gravity * delta
 			position.y = min(position.y + fall_speed * delta, floor_y)
 			if position.y >= floor_y:
@@ -201,7 +210,6 @@ func _process(delta: float) -> void:
 			position + Vector2(h.x, h.y), position + Vector2(-h.x, h.y),
 		])
 	get_window().mouse_passthrough_polygon = poly
-
 
 func spawn_hearts(pos: Vector2):
 	if Time.get_ticks_msec()< hearts_cooldown:
@@ -255,21 +263,25 @@ func spawn_fish():
 	if state != State.DRAGGED and state != State.FALL:
 		change_state(State.FISH)
 
+## General logic for fadings effects
 func fade_sprite(to: Color, time:= 1.0):
 	if fade_tween:
 		fade_tween.kill()
 	fade_tween = create_tween()
 	fade_tween.tween_property(sprite, "modulate", to, time)
 
+## Play meow with random pitch/volume
 func play_meow():
 	meow.pitch_scale = randf_range(0.9, 1.6)
 	meow.volume_db = randf_range(-4.0, 0.0)
 	meow.play()
-	
+
+## Finish the chase and sets state in Idle
 func end_chase():
 	chase_cooldown = randf_range(10.0, 25.0)
 	change_state(State.IDLE)
-	
+
+## Handles the logic behind the changes of state (animation, speed..) with each one.
 func change_state(new_state):
 	if new_state == state:
 		return
@@ -301,33 +313,37 @@ func change_state(new_state):
 			fall_speed = 0.0
 			sprite.play("fall")
 			
+## Changes face direction
 func face(dir):
 	if dir == 0:
 		return
 	direction.x = dir
 	sprite.flip_h = dir < 0
-	
+
+## Moves on x and returns true if a border is touched
 func move_x(delta) -> bool:
 	var h = window_size / 2
 	position.x = clamp(position.x + direction.x * speed * delta, h.x, screen_size.x - h.x)
 	return position.x <= h.x or position.x >= screen_size.x - h.x
 
+## Save position
 func save_data():
 	var cfg = ConfigFile.new()
 	cfg.set_value("pet", "x", position.x)
 	cfg.save(save_path)
-	
+
+## Load saved position
 func load_data():
 	var cfg = ConfigFile.new()
 	if cfg.load(save_path) == OK:
 		var h = window_size.x / 2
 		position.x = clamp(cfg.get_value("pet", "x", position.x), h, screen_size.x - h)
 
-		
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		save_data()
 
+## Use laptops clock to add a "dynamic light" effect.
 func update_light():
 	var t = Time.get_time_dict_from_system()
 	var hour = t.hour + t.minute / 60.0
@@ -349,6 +365,7 @@ func update_light():
 	tw.tween_property(light, "color", c, 2.0)
 	tw.tween_property(light, "energy", e, 2.0)
 
+## Appearal of the name tag
 func _on_hover(entered: bool):
 	if state == State.DRAGGED:
 		return
@@ -422,3 +439,7 @@ func open_menu():
 		x = position.x - window_size.x / 2 - gap - menu.size.x
 	var y = clamp(position.y - menu.size.y / 2, 0, screen_size.y - menu.size.y)
 	menu.popup(Rect2i(Vector2i(x,y), Vector2i.ZERO))
+
+## Get the fish floor taking into account a inspect var that allows to easily change the offset
+func get_fish_floor() -> float:
+	return floor_y + window_size.y / 2 - fish_offset
