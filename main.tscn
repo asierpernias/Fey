@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://1biv1p85gkpj" path="res://Assets/Falling/pixil-frame-1.png" id="3_yaehf"]
 [ext_resource type="Texture2D" uid="uid://cwsmmsm24qukl" path="res://Assets/Idle/pixil-frame-2.png" id="3_ycdy4"]
 [ext_resource type="Texture2D" uid="uid://bsix2qmevofgn" path="res://Assets/Falling/pixil-frame-2.png" id="4_074og"]
+[ext_resource type="FontFile" uid="uid://dm1rbfqj217kg" path="res://Fonts/Minecraft.ttf" id="4_facbu"]
 [ext_resource type="Texture2D" uid="uid://o1hevivr5ui2" path="res://Assets/Idle/pixil-frame-3.png" id="4_w48qg"]
 [ext_resource type="Texture2D" uid="uid://bst3t83hssjce" path="res://Assets/Falling/pixil-frame-3.png" id="5_cegan"]
 [ext_resource type="Texture2D" uid="uid://bbx1r6j5bfh5k" path="res://Assets/Idle/pixil-frame-4.png" id="5_vivmo"]
@@ -35,7 +36,7 @@
 [ext_resource type="Texture2D" uid="uid://8kla7qapwxrq" path="res://Assets/sleeping/pixil-frame-14.png" id="27_qnost"]
 [ext_resource type="Texture2D" uid="uid://btsd12gaqe8d3" path="res://Assets/sleeping/pixil-frame-15.png" id="28_wnkbs"]
 [ext_resource type="AudioStream" uid="uid://dcf7ojjtqu7t0" path="res://SFX/sound_garage-cat-meow-8-fx-306184.mp3" id="35_0rl1p"]
-[ext_resource type="Texture2D" uid="uid://ygi3er74boxg" path="res://Assets/Others/pixil-frame-0 (19).png" id="36_ok6jj"]
+[ext_resource type="Texture2D" uid="uid://ctj5pmlo1kemh" path="res://Assets/Others/pixil-frame-0 (21).png" id="37_facbu"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_gueev"]
 animations = [{
@@ -172,6 +173,7 @@ scale = Vector2(2, 2)
 script = ExtResource("1_dg77c")
 fish_texture = ExtResource("2_jq2sk")
 heart_texture = ExtResource("3_4k2k6")
+menu_font = ExtResource("4_facbu")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2047271538]
 position = Vector2(0.5, 0.5)
@@ -202,4 +204,4 @@ color = Color(0.45185274, 0.45291138, 0.6027146, 1)
 modulate = Color(1, 1, 1, 0)
 position = Vector2(0, -35.5)
 scale = Vector2(1.59375, 1.59375)
-texture = ExtResource("36_ok6jj")
+texture = ExtResource("37_facbu")

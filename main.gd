@@ -30,6 +30,9 @@ var fish_fall = 0.0
 @onready var sprite = $AnimatedSprite2D
 @onready var area = $Area2D
 
+var menu: PopupMenu
+@export var menu_font: Font
+
 var idle_timer =0.0
 var drag_offset = Vector2()
 var sleep_timer = 150.0
@@ -45,6 +48,11 @@ var chase_cooldown = randf_range(10.0, 25.0)
 var press_pos = Vector2()
 
 func _on_area_input(_viewport, event, _shape_idx):
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		if state != State.DRAGGED:
+			inactivity = 0.0
+			open_menu()
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		inactivity = 0.0
 		if state == State.SLEEP:
@@ -76,6 +84,7 @@ func _input(event):
 		sprite.rotation = clamp(event.relative.x * 0.05, -0.5, 0.5)
 		
 func _ready() -> void:
+	setup_menu()
 	get_viewport().gui_embed_subwindows = false
 	floor_y = DisplayServer.screen_get_usable_rect().end.y - window_size.y / 2 + 65
 	var win = get_window()
@@ -102,7 +111,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if screen_size == Vector2.ZERO:
 		return
-	var fish_floor = floor_y + window_size.y / 2 - 20
+	var fish_floor = floor_y + window_size.y / 2 -80
 	if fish != null and fish_pos.y < fish_floor:
 		fish_fall += gravity * delta
 		fish_pos.y = min(fish_pos.y + fish_fall * delta, fish_floor)
@@ -236,7 +245,8 @@ func spawn_fish():
 func fade_sprite(to: Color, time:= 1.0):
 	if fade_tween:
 		fade_tween.kill()
-	create_tween().tween_property(sprite, "modulate", to, time)
+	fade_tween = create_tween()
+	fade_tween.tween_property(sprite, "modulate", to, time)
 
 func play_meow():
 	meow.pitch_scale = randf_range(0.9, 1.6)
@@ -334,3 +344,68 @@ func _on_hover(entered: bool):
 	tag_tween = create_tween()
 	tag_tween.tween_property(cartel, "modulate:a", 1.0 if entered else 0.0, 0.2)
 	
+func setup_menu():
+	menu = PopupMenu.new()
+	menu.add_item("Sleep", 0)
+	menu.add_item("Mute", 1)
+	menu.add_separator()
+	menu.add_item("Exit", 2)
+	menu.id_pressed.connect(_on_menu_pressed)
+	menu.theme = make_menu_theme()
+	add_child(menu)
+	
+func _on_menu_pressed(id: int):
+	match id:
+		0:
+			if state != State.DRAGGED and state != State.FALL:
+				change_state(State.SLEEP)
+		1:
+			var muted = not AudioServer.is_bus_mute(0)
+			AudioServer.set_bus_mute(0, muted)
+			menu.set_item_text(menu.get_item_index(1), "Activate Sound" if muted else "Mute")
+		2:
+			save_data()
+			get_tree().quit()
+
+func make_menu_theme() -> Theme:
+	var border = Color("ffbe8cff")
+	var t = Theme.new()
+
+	var panel = StyleBoxFlat.new()
+	panel.bg_color = Color("44374fff")
+	panel.border_color = border
+	panel.set_border_width_all(2)
+	panel.set_corner_radius_all(0)
+	panel.set_content_margin_all(4)
+	panel.anti_aliasing = false
+
+	var hov = StyleBoxFlat.new()
+	hov.bg_color = Color("#5a4466")
+	hov.anti_aliasing = false
+
+	var sep = StyleBoxLine.new()
+	sep.color = border
+	sep.thickness = 1
+	
+	t.set_stylebox("panel", "PopupMenu", panel)
+	t.set_stylebox("hover", "PopupMenu", hov)
+	t.set_stylebox("separator", "PopupMenu", sep)
+	t.set_color("font_color", "PopupMenu", Color("f9ebbbff"))
+	t.set_color("font_hover_color", "PopupMenu", Color.WHITE)
+	if menu_font:
+		t.set_font("font", "PopupMenu", menu_font)
+	t.set_font_size("font_size", "PopupMenu", 12)
+	t.set_constant("v_separation", "PopupMenu", 4)
+	t.set_constant("item_start_padding", "PopupMenu", 6)
+	t.set_constant("item_end_padding", "PopupMenu", 6)
+	
+	return t
+
+func open_menu():
+	menu.reset_size()
+	var gap = 6
+	var x = position.x + window_size.x / 2 + gap
+	if x + menu.size.x > screen_size.x:
+		x = position.x - window_size.x / 2 - gap - menu.size.x
+	var y = clamp(position.y - menu.size.y / 2, 0, screen_size.y - menu.size.y)
+	menu.popup(Rect2i(Vector2i(x,y), Vector2i.ZERO))
