@@ -194,14 +194,14 @@ position = Vector2(-15.700001, 17.037506)
 scale = Vector2(2, 2)
 shape = SubResource("RectangleShape2D_yco1y")
 
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=174432924]
-stream = ExtResource("35_0rl1p")
-
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=430258462]
-color = Color(0.45185274, 0.45291138, 0.6027146, 1)
+color = Color(0.6713237, 0.6655075, 0.74391294, 1)
 
 [node name="Cartel" type="Sprite2D" parent="." unique_id=150601019]
 modulate = Color(1, 1, 1, 0)
 position = Vector2(0, -35.5)
 scale = Vector2(1.59375, 1.59375)
 texture = ExtResource("37_facbu")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=612521747]
+stream = ExtResource("35_0rl1p")

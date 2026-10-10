@@ -1,51 +1,56 @@
 extends Node2D
 
+# Save 
 var save_timer = 0.0
 var save_path = "user://pet.cfg"
 
+# Tween controlers
 var fade_tween: Tween
-@onready var cartel = $Cartel
-var hovering = false
 var tag_tween: Tween
+var squas_tween: Tween
 
 var light_timer = 0.0
 @onready var light = $AnimatedSprite2D/PointLight2D
 
-var speed = 100
-var direction = Vector2(1, 0)
+# Window
 var screen_size = Vector2()
 var window_size = Vector2(140, 250)
 
-
+# Cat
 enum State {WALK, IDLE, SLEEP, CHASE, FISH, DRAGGED, FALL}
 var state = State.WALK
-
-var fish: Window = null
-var fish_pos = Vector2()
-
-@export var fish_texture: Texture2D
-@export var heart_texture: Texture2D
-var fish_fall = 0.0
-
 @onready var sprite = $AnimatedSprite2D
 @onready var area = $Area2D
+@onready var base_scale = sprite.scale
+@onready var cartel = $Cartel
 
-var menu: PopupMenu
-@export var menu_font: Font
+# Physics
+var fall_speed = 0.0
+var gravity = 1500.0
+var floor_y = 0.0
+var speed = 100
+var direction = Vector2(1, 0)
 
+# Behavior
 var idle_timer =0.0
 var drag_offset = Vector2()
 var sleep_timer = 150.0
 var inactivity = 0.0
-
-var fall_speed = 0.0
-var gravity = 1500.0
-var floor_y = 0.0
-
 var chase_cooldown = randf_range(10.0, 25.0)
-
-@onready var meow = $AudioStreamPlayer2D
+@onready var meow = $AudioStreamPlayer
 var press_pos = Vector2()
+
+# Hearts / Fish
+var fish: Window = null
+var fish_pos = Vector2()
+var fish_fall = 0.0
+@export var fish_texture: Texture2D
+
+@export var heart_texture: Texture2D
+var hearts_cooldown = 0.0
+
+var menu: PopupMenu
+@export var menu_font: Font
 
 func _on_area_input(_viewport, event, _shape_idx):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
@@ -76,6 +81,7 @@ func _input(event):
 			play_meow()
 			spawn_hearts(get_global_mouse_position())
 		change_state(State.FALL)
+		_on_hover(false)
 	elif event is InputEventMouseMotion:
 		position = get_global_mouse_position() - drag_offset
 		var h = window_size / 2
@@ -88,12 +94,10 @@ func _ready() -> void:
 	get_viewport().gui_embed_subwindows = false
 	floor_y = DisplayServer.screen_get_usable_rect().end.y - window_size.y / 2 + 65
 	var win = get_window()
-	area.input_event.connect(_on_area_input)
 	win.borderless = true
 	win.transparent = true
 	get_viewport().transparent_bg = true
 	win.position = Vector2i.ZERO
-	position = Vector2(300, 300)
 	var s = DisplayServer.screen_get_size()
 	win.size = Vector2i(s.x, s.y - 1)
 	await get_tree().process_frame  
@@ -106,7 +110,7 @@ func _ready() -> void:
 	win.always_on_top = true
 	area.mouse_entered.connect(_on_hover.bind(true))
 	area.mouse_exited.connect(_on_hover.bind(false))
-	
+	area.input_event.connect(_on_area_input)
 	
 func _physics_process(delta: float) -> void:
 	if screen_size == Vector2.ZERO:
@@ -127,6 +131,7 @@ func _physics_process(delta: float) -> void:
 				change_state(State.FISH)
 				return
 			if state == State.IDLE:
+				face(sign(get_global_mouse_position().x - position.x))
 				idle_timer -= delta
 				if idle_timer <= 0:
 					change_state(State.WALK)
@@ -152,7 +157,7 @@ func _physics_process(delta: float) -> void:
 				change_state(State.WALK)
 				return
 			var dx = fish_pos.x - position.x
-			if abs(dx) < 40 and fish_pos.y >= floor_y + window_size.y / 2 -21:
+			if abs(dx) < 40 and fish_pos.y >= floor_y -1:
 				spawn_hearts(fish_pos)
 				fish.queue_free()
 				fish = null
@@ -166,6 +171,11 @@ func _physics_process(delta: float) -> void:
 			fall_speed += gravity * delta
 			position.y = min(position.y + fall_speed * delta, floor_y)
 			if position.y >= floor_y:
+				if squas_tween:
+					squas_tween.kill()
+				sprite.scale = base_scale * Vector2(1.25, 0.75)
+				squas_tween = create_tween()
+				squas_tween.tween_property(sprite, "scale", base_scale, 0.2)
 				change_state(State.FISH if fish != null else State.WALK)
 
 func _process(delta: float) -> void:
@@ -194,6 +204,9 @@ func _process(delta: float) -> void:
 
 
 func spawn_hearts(pos: Vector2):
+	if Time.get_ticks_msec()< hearts_cooldown:
+		return
+	hearts_cooldown = Time.get_ticks_msec() + 800
 	for i in randi_range(4, 8):
 		var start = pos + Vector2(randf_range(-30, 30), -40)
 		var w = make_fx_window(heart_texture, 3.0, start)
@@ -321,6 +334,7 @@ func update_light():
 	var c: Color
 	var e: float
 	
+	sleep_timer = 40.0 if hour >= 23.0 or hour < 7.0 else 150.0
 	if hour < 6.0:
 		c = Color(0.4, 0.5, 1.0); e = 0.4
 	elif hour < 9.0:
@@ -336,7 +350,6 @@ func update_light():
 	tw.tween_property(light, "energy", e, 2.0)
 
 func _on_hover(entered: bool):
-	hovering = entered
 	if state == State.DRAGGED:
 		return
 	if tag_tween:
