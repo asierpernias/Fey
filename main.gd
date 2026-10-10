@@ -1,9 +1,16 @@
 extends Node2D
 
+var save_timer = 0
+var save_path = "user://pet.cfg"
+
+var light_timer = 0.0
+@onready var light = $AnimatedSprite2D/PointLight2D
+
 var speed = 100
 var direction = Vector2(1, 0)
 var screen_size = Vector2()
 var window_size = Vector2(140, 140)
+
 
 enum State {WALK, IDLE, SLEEP, CHASE, FISH, DRAGGED, FALL}
 var state = State.WALK
@@ -54,6 +61,7 @@ func _input(event):
 		inactivity = 0.0
 		if get_global_mouse_position().distance_to(press_pos) < 15:
 			play_meow()
+			spawn_hearts(get_global_mouse_position())
 		change_state(State.FALL)
 	elif event is InputEventMouseMotion:
 		position = get_global_mouse_position() - drag_offset
@@ -64,7 +72,7 @@ func _input(event):
 		
 func _ready() -> void:
 	get_viewport().gui_embed_subwindows = false
-	floor_y = DisplayServer.screen_get_usable_rect().end.y - window_size.y / 2
+	floor_y = DisplayServer.screen_get_usable_rect().end.y - window_size.y / 2 + 10
 	var win = get_window()
 	area.input_event.connect(_on_area_input)
 	win.borderless = true
@@ -76,8 +84,10 @@ func _ready() -> void:
 	win.size = Vector2i(s.x, s.y - 1)
 	await get_tree().process_frame  
 	screen_size = get_viewport_rect().size  
-	change_state(State.WALK)
-	
+	load_data()
+	update_light()
+	position.y = floor_y
+	change_state(State.SLEEP)
 	await get_tree().process_frame
 	win.always_on_top = true
 	
@@ -146,6 +156,15 @@ func _process(delta: float) -> void:
 	sprite.rotation = lerp(sprite.rotation, 0.0, 10 * delta)
 	if screen_size == Vector2.ZERO:
 		return
+	save_timer += delta
+	if save_timer >= 5.0:
+		save_timer = 0.0
+		if state != State.DRAGGED:
+			save_data()
+	light_timer += delta
+	if light_timer == 60.0:
+		light_timer = 0.0
+		update_light()
 	var poly: PackedVector2Array
 	if state == State.DRAGGED:
 		poly = PackedVector2Array([Vector2.ZERO, Vector2(screen_size.x, 0), screen_size, Vector2(0, screen_size.y)])
@@ -162,6 +181,8 @@ func spawn_hearts(pos: Vector2):
 	for i in randi_range(4, 8):
 		var start = pos + Vector2(randf_range(-30, 30), -40)
 		var w = make_fx_window(heart_texture, 3.0, start)
+		if w == null:
+			return
 		var y0 = float(w.position.y)
 		var t = create_tween().set_parallel(true)
 		t.tween_method(func(v): w.position.y = int(v), y0, y0 - randf_range(120, 200), 1.5)
@@ -170,6 +191,8 @@ func spawn_hearts(pos: Vector2):
 		await get_tree().create_timer(0.1).timeout
 	
 func make_fx_window(tex: Texture2D, scale_f: float, center: Vector2) -> Window:
+	if tex == null:
+		return null
 	var w = Window.new()
 	w.borderless = true
 	w.transparent = true
@@ -178,7 +201,7 @@ func make_fx_window(tex: Texture2D, scale_f: float, center: Vector2) -> Window:
 	w.unfocusable = true
 	w.size = Vector2i(tex.get_size() * scale_f)
 	w.position = Vector2i(center - Vector2(w.size) / 2)
-	w.mouse_passthrough= false
+	w.mouse_passthrough= true
 	var s = Sprite2D.new()
 	s.texture = tex
 	s.scale = Vector2(scale_f, scale_f)
@@ -255,3 +278,39 @@ func move_x(delta) -> bool:
 	var h = window_size / 2
 	position.x = clamp(position.x + direction.x * speed * delta, h.x, screen_size.x - h.x)
 	return position.x <= h.x or position.x >= screen_size.x - h.x
+
+func save_data():
+	var cfg = ConfigFile.new()
+	cfg.set_value("pet", "x", position.x)
+	cfg.save(save_path)
+	
+func load_data():
+	var cfg = ConfigFile.new()
+	if cfg.load(save_path) == OK:
+		var h = window_size.x / 2
+		position.x = clamp(cfg.get_value("pet", "x", position.x), h, screen_size.x - h)
+
+		
+func _notification(what):
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		save_data()
+
+func update_light():
+	var t = Time.get_time_dict_from_system()
+	var hour = t.hour + t.minute / 60
+	var c: Color
+	var e: float
+	
+	if hour < 6.0:
+		c = Color(0.4, 0.5, 1.0); e = 0.4
+	elif hour < 9.0:
+		c = Color(1.0, 0.7, 0.5); e = 0.8
+	elif hour < 18.0:
+		c = Color(1.0, 0.95, 0.85); e = 0.5
+	elif hour < 21.0:
+		c = Color(1.0, 0.6, 0.35); e = 0.9
+	else:
+		c = Color(0.4, 0.5, 1.0); e = 0.4
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(light, "color", c, 2.0)
+	tw.tween_property(light, "energy", e, 2.0)
