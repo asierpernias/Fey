@@ -32,11 +32,13 @@ An tiny animated cat that lives on top of your dektop. Fey walks arround your ta
 4. Turn off **Embed Game on Next Play**
 5. Press Play
 
-## Svae Data
+## Save Data
 
 Here position is automatically stored in `user://pet.cfg`. Delete this file to reset it
 
 ## Screenshots
+<img width="642" height="525" alt="Sin título" src="https://github.com/user-attachments/assets/7d91e7d6-5fd7-4cdc-93ae-d3b6321e5328" />
+<img width="493" height="563" alt="Captura de pantalla 2026-10-11 010838" src="https://github.com/user-attachments/assets/ed5ea628-508e-421f-bf34-55e47ecaa309" />
 
 ## License 
 This project is under the MIT License, open `LICENSE`to read more about it and more details.
